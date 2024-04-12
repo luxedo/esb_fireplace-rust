@@ -5,6 +5,7 @@
 *  Check [esb](https://github.com/luxedo/esb) for more information.
 */
 #![feature(trait_alias)]
+use std::error::Error;
 use std::fmt::Display;
 use std::io;
 use std::str::FromStr;
@@ -18,11 +19,11 @@ pub enum FireplaceError {
     #[error("Missing part, please use 1 or 2 as argument for --part flag.")]
     MissingPart,
     #[error("{0}")]
-    FromString(String),
+    FromUser(String),
 }
 
 type FireplaceResult<T> = Result<T, FireplaceError>;
-pub trait AoCFunction<T: Display> = Fn(&str, Option<Vec<String>>) -> FireplaceResult<T>;
+pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Option<Vec<String>>) -> Result<T, E>;
 
 enum AoCPart {
     Pt1,
@@ -93,9 +94,9 @@ fn parser() -> clap::Command {
         )
 }
 
-pub fn run_with_clap<T, U>(
-    solve_pt1: impl AoCFunction<T>,
-    solve_pt2: impl AoCFunction<U>,
+pub fn run_with_clap<T, E1, U, E2>(
+    solve_pt1: impl AoCFunction<T, E1>,
+    solve_pt2: impl AoCFunction<U, E2>,
 ) -> FireplaceResult<()>
 where
     T: Display + 'static,
@@ -107,9 +108,9 @@ where
     Ok(())
 }
 
-pub fn run<T, U>(
-    solve_pt1: impl AoCFunction<T>,
-    solve_pt2: impl AoCFunction<U>,
+pub fn run<T, E1, U, E2>(
+    solve_pt1: impl AoCFunction<T, E1>,
+    solve_pt2: impl AoCFunction<U, E2>,
     mut input_reader: impl InputReader,
     fp_args: FireplaceArgs,
 ) -> FireplaceResult<Box<dyn Display>>
@@ -119,8 +120,16 @@ where
 {
     let input_data = input_reader.load_fireplace_input()?;
     let answer: Box<dyn Display> = match fp_args.part {
-        AoCPart::Pt1 => Box::new(solve_pt1(&input_data, fp_args.args)?),
-        AoCPart::Pt2 => Box::new(solve_pt2(&input_data, fp_args.args)?),
+        AoCPart::Pt1 => {
+            let solution = solve_pt1(&input_data, fp_args.args)
+                .map_err(|e| FireplaceError::FromUser(e.to_string()))?;
+            Box::new(solution)
+        }
+        AoCPart::Pt2 => {
+            let solution = solve_pt2(&input_data, fp_args.args)
+                .map_err(|e| FireplaceError::FromUser(e.to_string()))?;
+            Box::new(solution)
+        }
     };
     println!("{}", answer);
     Ok(answer)
@@ -184,5 +193,23 @@ mod tests {
         };
         let answer = test_runner(fp_args).unwrap();
         assert_eq!(answer.to_string(), PT2_RETURN);
+    }
+
+    #[test]
+    // Check if the error is converted to a FireplaceError::FromUser
+    fn test_error_conversion() {
+        let some_aoc_function =
+            |_: &str, _: Option<Vec<String>>| -> Result<String, std::fmt::Error> {
+                Err(std::fmt::Error)
+            };
+        let fp_args = FireplaceArgs {
+            part: AoCPart::Pt1,
+            args: None,
+        };
+        let result = super::run(some_aoc_function, solve_pt2, TestInputReader, fp_args);
+        let Err(e) = result else {
+            panic!("Expected an error");
+        };
+        assert!(matches!(e, FireplaceError::FromUser(_)));
     }
 }
