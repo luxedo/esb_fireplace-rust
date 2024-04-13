@@ -23,7 +23,7 @@ pub enum FireplaceError {
 }
 
 type FireplaceResult<T> = Result<T, FireplaceError>;
-pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Vec<String>) -> Result<T, E>;
+pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Vec<&str>) -> Result<T, E>;
 
 enum AoCPart {
     Pt1,
@@ -53,12 +53,12 @@ impl InputReader for io::Stdin {
     }
 }
 
-pub struct FireplaceArgs {
+pub struct FireplaceArgs<'a> {
     part: AoCPart,
-    args: Vec<String>,
+    args: Vec<&'a str>,
 }
 
-impl TryFrom<clap::ArgMatches> for FireplaceArgs {
+impl TryFrom<clap::ArgMatches> for FireplaceArgs<'_> {
     type Error = FireplaceError;
 
     fn try_from(matches: clap::ArgMatches) -> Result<Self, Self::Error> {
@@ -66,9 +66,9 @@ impl TryFrom<clap::ArgMatches> for FireplaceArgs {
             return Err(FireplaceError::MissingPart);
         };
         let part = part.parse::<AoCPart>()?;
-        let args: Vec<String> = matches
+        let args: Vec<&str> = matches
             .get_many("args")
-            .map_or(vec![], |v| v.cloned().collect::<Vec<String>>());
+            .map_or(vec![], |v| v.cloned().collect::<Vec<&str>>());
         Ok(Self { part, args })
     }
 }
@@ -145,7 +145,7 @@ mod tests {
         }
     }
 
-    fn solve_pt1(input_data: &str, args: Vec<String>) -> FireplaceResult<String> {
+    fn solve_pt1(input_data: &str, args: Vec<&str>) -> FireplaceResult<String> {
         Ok(match args.len() {
             0 => input_data.trim().into(),
             _ => args.join(" "),
@@ -153,7 +153,7 @@ mod tests {
     }
 
     const PT2_RETURN: &str = "2";
-    fn solve_pt2(_input_data: &str, _args: Vec<String>) -> FireplaceResult<String> {
+    fn solve_pt2(_input_data: &str, _args: Vec<&str>) -> FireplaceResult<String> {
         Ok(PT2_RETURN.into())
     }
 
@@ -197,7 +197,7 @@ mod tests {
     // Check if the error is converted to a FireplaceError::FromUser
     fn test_error_conversion() {
         let some_aoc_function =
-            |_: &str, _: Vec<String>| -> Result<String, std::fmt::Error> { Err(std::fmt::Error) };
+            |_: &str, _: Vec<&str>| -> Result<String, std::fmt::Error> { Err(std::fmt::Error) };
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt1,
             args: vec![],
