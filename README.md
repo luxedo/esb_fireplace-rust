@@ -21,20 +21,20 @@ Create a function named `start` in your solution file and add `EsbFireplace.v1_r
 ```rust
 use std::error::Error;
 
-use esb_fireplace::Fireplace;
+use esb_fireplace::{v1_run, FireplaceError};
 
-fn solve_pt1(input_data: &str, _args: Option<Vec<String>>) -> Result<i32, Box<dyn Error>> {
+fn solve_pt1(input_data: &str, _args: Vec<String>) -> Result<i32, FireplaceError> {
     Ok(10)
 }
 
-fn solve_pt2(input_data: &str, _args: Option<Vec<String>>) -> Result<String, Box<dyn Error>> {
-    Ok("hello")
+fn solve_pt2(input_data: &str, _args: Vec<String>) -> Result<String, FireplaceError> {
+    Ok("hello".into())
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), FireplaceError> {
     // 🎅🎄❄️☃️🎁🦌
     // Bright christmas lights HERE
-    Fireplace::v1_run(solve_pt1, solve_pt2)
+    v1_run(solve_pt1, solve_pt2)
 }
 ```
 

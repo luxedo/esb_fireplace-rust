@@ -23,7 +23,7 @@ pub enum FireplaceError {
 }
 
 type FireplaceResult<T> = Result<T, FireplaceError>;
-pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Option<Vec<String>>) -> Result<T, E>;
+pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Vec<String>) -> Result<T, E>;
 
 enum AoCPart {
     Pt1,
@@ -55,7 +55,7 @@ impl InputReader for io::Stdin {
 
 pub struct FireplaceArgs {
     part: AoCPart,
-    args: Option<Vec<String>>,
+    args: Vec<String>,
 }
 
 impl TryFrom<clap::ArgMatches> for FireplaceArgs {
@@ -66,10 +66,9 @@ impl TryFrom<clap::ArgMatches> for FireplaceArgs {
             return Err(FireplaceError::MissingPart);
         };
         let part = part.parse::<AoCPart>()?;
-        let args: Option<Vec<String>> = matches
-            .try_get_many::<String>("args")
-            .map_or(None, |opt_args| opt_args.map(|v| v.cloned().collect()));
-
+        let args: Vec<String> = matches
+            .get_many("args")
+            .map_or(vec![], |v| v.cloned().collect::<Vec<String>>());
         Ok(Self { part, args })
     }
 }
@@ -94,7 +93,7 @@ fn parser() -> clap::Command {
         )
 }
 
-pub fn run_with_clap<T, E1, U, E2>(
+pub fn v1_run<T, E1, U, E2>(
     solve_pt1: impl AoCFunction<T, E1>,
     solve_pt2: impl AoCFunction<U, E2>,
 ) -> FireplaceResult<()>
@@ -146,16 +145,15 @@ mod tests {
         }
     }
 
-    fn solve_pt1(input_data: &str, args: Option<Vec<String>>) -> FireplaceResult<String> {
-        Ok(if let Some(a) = args {
-            a.join(" ")
-        } else {
-            input_data.trim().into()
+    fn solve_pt1(input_data: &str, args: Vec<String>) -> FireplaceResult<String> {
+        Ok(match args.len() {
+            0 => input_data.trim().into(),
+            _ => args.join(" "),
         })
     }
 
     const PT2_RETURN: &str = "2";
-    fn solve_pt2(_input_data: &str, _args: Option<Vec<String>>) -> FireplaceResult<String> {
+    fn solve_pt2(_input_data: &str, _args: Vec<String>) -> FireplaceResult<String> {
         Ok(PT2_RETURN.into())
     }
 
@@ -167,7 +165,7 @@ mod tests {
     fn test_calls_solve_pt1() {
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt1,
-            args: None,
+            args: vec![],
         };
         let answer = test_runner(fp_args).unwrap();
         let expected = "sample input";
@@ -178,7 +176,7 @@ mod tests {
     fn test_calls_solve_pt1_with_args() {
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt1,
-            args: Some(vec!["a".into(), "b".into(), "c".into()]),
+            args: vec!["a".into(), "b".into(), "c".into()],
         };
         let answer = test_runner(fp_args).unwrap();
         let expected = "a b c";
@@ -189,7 +187,7 @@ mod tests {
     fn test_calls_solve_pt2() {
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt2,
-            args: None,
+            args: vec![],
         };
         let answer = test_runner(fp_args).unwrap();
         assert_eq!(answer.to_string(), PT2_RETURN);
@@ -199,12 +197,10 @@ mod tests {
     // Check if the error is converted to a FireplaceError::FromUser
     fn test_error_conversion() {
         let some_aoc_function =
-            |_: &str, _: Option<Vec<String>>| -> Result<String, std::fmt::Error> {
-                Err(std::fmt::Error)
-            };
+            |_: &str, _: Vec<String>| -> Result<String, std::fmt::Error> { Err(std::fmt::Error) };
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt1,
-            args: None,
+            args: vec![],
         };
         let result = super::run(some_aoc_function, solve_pt2, TestInputReader, fp_args);
         let Err(e) = result else {
