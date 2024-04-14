@@ -19,22 +19,22 @@ esb_fireplace = { version = "0.1.0" }
 Create a function named `start` in your solution file and add `EsbFireplace.v1_run` to it.
 
 ```rust
-use std::error::Error;
+use esb_fireplace::{FireplaceError, FireplaceResult};
 
-use esb_fireplace::{v1_run, FireplaceError};
+use std::fmt::Display;
 
-fn solve_pt1(input_data: &str, _args: Vec<String>) -> Result<i32, FireplaceError> {
-    Ok(10)
+fn solve_pt1(input_data: &str, _args: Vec<&str>) -> FireplaceResult<impl Display> {
+    Ok(25)
 }
 
-fn solve_pt2(input_data: &str, _args: Vec<String>) -> Result<String, FireplaceError> {
-    Ok("hello".into())
+fn solve_pt2(input_data: &str, _args: Vec<&str>) -> FireplaceResult<impl Display> {
+    Ok("December")
 }
 
 fn main() -> Result<(), FireplaceError> {
     // 🎅🎄❄️☃️🎁🦌
     // Bright christmas lights HERE
-    v1_run(solve_pt1, solve_pt2)
+    esb_fireplace::v1_run(solve_pt1, solve_pt2)
 }
 ```
 

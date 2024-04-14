@@ -21,7 +21,7 @@ pub enum FireplaceError {
     FromUser(String),
 }
 
-type FireplaceResult<T> = Result<T, FireplaceError>;
+pub type FireplaceResult<T> = Result<T, FireplaceError>;
 
 enum AoCPart {
     Pt1,
@@ -91,6 +91,20 @@ fn parser() -> clap::Command {
         )
 }
 
+enum Either<T, U> {
+    Left(T),
+    Right(U),
+}
+
+impl<T: Display, U: Display> Display for Either<T, U> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Either::Left(t) => write!(f, "{}", t),
+            Either::Right(u) => write!(f, "{}", u),
+        }
+    }
+}
+
 pub fn v1_run<T, E1, U, E2>(
     solve_pt1: impl Fn(&str, Vec<&str>) -> Result<T, E1>,
     solve_pt2: impl Fn(&str, Vec<&str>) -> Result<U, E2>,
@@ -107,12 +121,12 @@ where
     Ok(())
 }
 
-pub fn run<T, E1, U, E2>(
+fn run<T, E1, U, E2>(
     solve_pt1: impl Fn(&str, Vec<&str>) -> Result<T, E1>,
     solve_pt2: impl Fn(&str, Vec<&str>) -> Result<U, E2>,
     mut input_reader: impl InputReader,
     fp_args: FireplaceArgs,
-) -> FireplaceResult<Box<dyn Display>>
+) -> FireplaceResult<Either<T, U>>
 where
     T: Display + 'static,
     U: Display + 'static,
@@ -120,20 +134,22 @@ where
     E2: Error,
 {
     let input_data = input_reader.load_fireplace_input()?;
-    let answer: Box<dyn Display> = match fp_args.part {
-        AoCPart::Pt1 => {
-            let solution = solve_pt1(&input_data, fp_args.args)
-                .map_err(|e| FireplaceError::FromUser(e.to_string()))?;
-            Box::new(solution)
-        }
-        AoCPart::Pt2 => {
-            let solution = solve_pt2(&input_data, fp_args.args)
-                .map_err(|e| FireplaceError::FromUser(e.to_string()))?;
-            Box::new(solution)
-        }
+    let answer = match fp_args.part {
+        AoCPart::Pt1 => solve_pt1(&input_data, fp_args.args)
+            .map_err(|e| FireplaceError::FromUser(e.to_string()))
+            .map(Either::Left),
+        AoCPart::Pt2 => solve_pt2(&input_data, fp_args.args)
+            .map_err(|e| FireplaceError::FromUser(e.to_string()))
+            .map(Either::Right),
     };
-    println!("{}", answer);
-    Ok(answer)
+
+    match answer {
+        Ok(answer) => {
+            println!("{}", answer);
+            Ok(answer)
+        }
+        Err(e) => Err(e),
+    }
 }
 
 #[cfg(test)]
@@ -159,7 +175,7 @@ mod tests {
         Ok(PT2_RETURN.into())
     }
 
-    fn test_runner(fp_args: FireplaceArgs) -> FireplaceResult<Box<dyn Display>> {
+    fn test_runner(fp_args: FireplaceArgs) -> FireplaceResult<impl Display> {
         super::run(solve_pt1, solve_pt2, TestInputReader, fp_args)
     }
 
@@ -178,7 +194,7 @@ mod tests {
     fn test_calls_solve_pt1_with_args() {
         let fp_args = FireplaceArgs {
             part: AoCPart::Pt1,
-            args: vec!["a".into(), "b".into(), "c".into()],
+            args: vec!["a", "b", "c"],
         };
         let answer = test_runner(fp_args).unwrap();
         let expected = "a b c";
