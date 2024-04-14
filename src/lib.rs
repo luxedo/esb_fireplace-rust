@@ -4,7 +4,6 @@
 *
 *  Check [esb](https://github.com/luxedo/esb) for more information.
 */
-#![feature(trait_alias)]
 use std::error::Error;
 use std::fmt::Display;
 use std::io;
@@ -23,7 +22,6 @@ pub enum FireplaceError {
 }
 
 type FireplaceResult<T> = Result<T, FireplaceError>;
-pub trait AoCFunction<T: Display, E: Error> = Fn(&str, Vec<&str>) -> Result<T, E>;
 
 enum AoCPart {
     Pt1,
@@ -94,12 +92,14 @@ fn parser() -> clap::Command {
 }
 
 pub fn v1_run<T, E1, U, E2>(
-    solve_pt1: impl AoCFunction<T, E1>,
-    solve_pt2: impl AoCFunction<U, E2>,
+    solve_pt1: impl Fn(&str, Vec<&str>) -> Result<T, E1>,
+    solve_pt2: impl Fn(&str, Vec<&str>) -> Result<U, E2>,
 ) -> FireplaceResult<()>
 where
     T: Display + 'static,
     U: Display + 'static,
+    E1: Error,
+    E2: Error,
 {
     let parser_matches = parser().get_matches();
     let fp_args = FireplaceArgs::try_from(parser_matches)?;
@@ -108,14 +108,16 @@ where
 }
 
 pub fn run<T, E1, U, E2>(
-    solve_pt1: impl AoCFunction<T, E1>,
-    solve_pt2: impl AoCFunction<U, E2>,
+    solve_pt1: impl Fn(&str, Vec<&str>) -> Result<T, E1>,
+    solve_pt2: impl Fn(&str, Vec<&str>) -> Result<U, E2>,
     mut input_reader: impl InputReader,
     fp_args: FireplaceArgs,
 ) -> FireplaceResult<Box<dyn Display>>
 where
     T: Display + 'static,
     U: Display + 'static,
+    E1: Error,
+    E2: Error,
 {
     let input_data = input_reader.load_fireplace_input()?;
     let answer: Box<dyn Display> = match fp_args.part {
