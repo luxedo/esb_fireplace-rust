@@ -48,7 +48,15 @@ cargo run -- --part 1 < input_data.txt
 esb run --year 2023 --day 1 --lang rust --part 1
 ```
 
-The docs can be found at <https://hexdocs.pm/esb_fireplace>.
+The docs can be found at <https://docs.rs/clap/latest/esb_fireplace/>.
+
+## Contributors
+
+We want to acknowledge and thank the following contributors for their efforts in making this project better:
+
+- [gustavobat](https://github.com/gustavobat)
+
+Thank you all for your valuable contributions! If you would like to contribute to the project, please check out our [contributing guide](CONTRIBUTING.md).
 
 ## License
 

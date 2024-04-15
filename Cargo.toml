@@ -2,8 +2,16 @@
 name = "esb_fireplace"
 version = "0.1.0"
 edition = "2021"
+authors = ["Luiz Eduardo Amaral <luizamaral306@gmail.com>", "Gustavo Batistela <gustavoabatistela@gmail.com>"]
+license = "GPL-3.0-or-later"
+description = "The FIREPLACEv1.0 allows the use of the `esb` tooling for solving Advent of Code problems."
+readme = "README.md"
+homepage = "https://github.com/luxedo/esb_fireplace-rust"
+reposotory = "https://github.com/luxedo/esb_fireplace-rust"
+keywords = ["cli", "AoC", "AdventOfCode", "esb", "ElfScriptBrigade"]
+categories = ["command-line-utilities"]
+exclude = [".github/*", ".pre-commit-config.yaml"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
