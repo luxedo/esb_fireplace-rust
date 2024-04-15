@@ -48,7 +48,7 @@ cargo run -- --part 1 < input_data.txt
 esb run --year 2023 --day 1 --lang rust --part 1
 ```
 
-The docs can be found at <https://docs.rs/clap/latest/esb_fireplace/>.
+The docs can be found at <https://docs.rs/esb_fireplace/>.
 
 ## Contributors
 
