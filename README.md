@@ -56,7 +56,7 @@ We want to acknowledge and thank the following contributors for their efforts in
 
 - [gustavobat](https://github.com/gustavobat)
 
-Thank you all for your valuable contributions! If you would like to contribute to the project, please check out our [contributing guide](CONTRIBUTING.md).
+Thank you all for your valuable contributions!
 
 ## License
 
