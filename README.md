@@ -11,7 +11,7 @@ The package can be installed by adding `esb_fireplace` to your list of dependenc
 
 ```toml
 [dependencies]
-esb_fireplace = { version = "0.1.0" }
+esb_fireplace = { version = "0.2.0" }
 ```
 
 ## Usage
@@ -23,11 +23,11 @@ use esb_fireplace::{FireplaceError, FireplaceResult};
 
 use std::fmt::Display;
 
-fn solve_pt1(input_data: &str, _args: Vec<&str>) -> FireplaceResult<impl Display> {
+fn solve_pt1(input_data: &str, _args: Vec<String>) -> FireplaceResult<impl Display> {
     Ok(25)
 }
 
-fn solve_pt2(input_data: &str, _args: Vec<&str>) -> FireplaceResult<impl Display> {
+fn solve_pt2(input_data: &str, _args: Vec<String>) -> FireplaceResult<impl Display> {
     Ok("December")
 }
 
