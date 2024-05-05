@@ -1,6 +1,6 @@
 [package]
 name = "esb_fireplace"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Luiz Eduardo Amaral <luizamaral306@gmail.com>", "Gustavo Batistela <gustavoabatistela@gmail.com>"]
 license = "GPL-3.0-or-later"
