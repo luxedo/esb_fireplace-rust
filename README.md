@@ -1,6 +1,7 @@
 # EsbFireplace - Rust
 
-The FIREPLACEv1.0 allows the use of the `esb` tooling for solving Advent of Code problems.
+The [FIREPLACEv1.0 protocol](https://github.com/luxedo/esb/blob/main/doc/FIREPLACEv1.0.md)
+allows the use of the `esb` tooling for solving Advent of Code problems.
 This is an implementation of FIREPLACEv1.0 for [rust](https://www.rust-lang.org/).
 
 Check [esb](https://github.com/luxedo/esb) for more information.
