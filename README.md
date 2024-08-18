@@ -12,7 +12,7 @@ The package can be installed by adding `esb_fireplace` to your list of dependenc
 
 ```toml
 [dependencies]
-esb_fireplace = { version = "0.2.0" }
+esb_fireplace = { version = "0.3.0" }
 ```
 
 ## Usage
