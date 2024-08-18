@@ -8,6 +8,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::io;
 use std::str::FromStr;
+use std::time::Instant;
 
 #[derive(thiserror::Error, Debug)]
 pub enum FireplaceError {
@@ -137,6 +138,7 @@ where
     E2: Error,
 {
     let input_data = input_reader.load_fireplace_input()?;
+    let start = Instant::now();
     let answer = match fp_args.part {
         AoCPart::Pt1 => solve_pt1(&input_data, fp_args.args)
             .map_err(|e| FireplaceError::FromUser(e.to_string()))
@@ -145,10 +147,12 @@ where
             .map_err(|e| FireplaceError::FromUser(e.to_string()))
             .map(Either::Right),
     };
+    let duration = start.elapsed();
 
     match answer {
         Ok(answer) => {
             println!("{}", answer);
+            println!("RT {} ns", duration.as_nanos());
             Ok(answer)
         }
         Err(e) => Err(e),
