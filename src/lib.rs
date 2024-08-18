@@ -1,15 +1,15 @@
-/*
-*  The FIREPLACEv1.0 allows the use of the `esb` tooling for solving Advent of Code problems.
-*  This is an implementation of FIREPLACEv1.0 for Rust.
-*
-*  Check [esb](https://github.com/luxedo/esb) for more information.
-*/
+//!  The FIREPLACEv1.0 allows the use of the `esb` tooling for solving Advent of Code problems.
+//!  This is an implementation of FIREPLACEv1.0 for Rust.
+//!
+//!  Check [esb](https://github.com/luxedo/esb) for more information.
+
 use std::error::Error;
 use std::fmt::Display;
 use std::io;
 use std::str::FromStr;
 use std::time::Instant;
 
+/// Handles incorrect command usage
 #[derive(thiserror::Error, Debug)]
 pub enum FireplaceError {
     #[error(transparent)]
@@ -22,6 +22,7 @@ pub enum FireplaceError {
     FromUser(String),
 }
 
+/// Return value for the AoC solution functions
 pub type FireplaceResult<T> = Result<T, FireplaceError>;
 
 enum AoCPart {
@@ -41,7 +42,7 @@ impl FromStr for AoCPart {
     }
 }
 
-pub trait InputReader {
+trait InputReader {
     fn load_fireplace_input(&mut self) -> FireplaceResult<String>;
 }
 
@@ -52,7 +53,7 @@ impl InputReader for io::Stdin {
     }
 }
 
-pub struct FireplaceArgs {
+struct FireplaceArgs {
     part: AoCPart,
     args: Vec<String>,
 }
@@ -95,24 +96,26 @@ fn parser() -> clap::Command {
         )
 }
 
-enum Either<T, U> {
-    Left(T),
-    Right(U),
+/// Contains the solution for pt1 or for pt2
+pub enum Either<T, U> {
+    Part1(T),
+    Part2(U),
 }
 
 impl<T: Display, U: Display> Display for Either<T, U> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Either::Left(t) => write!(f, "{}", t),
-            Either::Right(u) => write!(f, "{}", u),
+            Either::Part1(t) => write!(f, "{}", t),
+            Either::Part2(u) => write!(f, "{}", u),
         }
     }
 }
 
+/// Runs the solution functions in compliance with FIREPLACEv1 protocol
 pub fn v1_run<T, E1, U, E2>(
     solve_pt1: impl Fn(&str, Vec<String>) -> Result<T, E1>,
     solve_pt2: impl Fn(&str, Vec<String>) -> Result<U, E2>,
-) -> FireplaceResult<()>
+) -> FireplaceResult<Either<T, U>>
 where
     T: Display + 'static,
     U: Display + 'static,
@@ -121,8 +124,7 @@ where
 {
     let parser_matches = parser().get_matches();
     let fp_args = FireplaceArgs::try_from(parser_matches)?;
-    run(&solve_pt1, &solve_pt2, io::stdin(), fp_args)?;
-    Ok(())
+    run(&solve_pt1, &solve_pt2, io::stdin(), fp_args)
 }
 
 fn run<T, E1, U, E2>(
@@ -142,10 +144,10 @@ where
     let answer = match fp_args.part {
         AoCPart::Pt1 => solve_pt1(&input_data, fp_args.args)
             .map_err(|e| FireplaceError::FromUser(e.to_string()))
-            .map(Either::Left),
+            .map(Either::Part1),
         AoCPart::Pt2 => solve_pt2(&input_data, fp_args.args)
             .map_err(|e| FireplaceError::FromUser(e.to_string()))
-            .map(Either::Right),
+            .map(Either::Part2),
     };
     let duration = start.elapsed();
 
