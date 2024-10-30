@@ -17,7 +17,7 @@ esb_fireplace = { version = "0.3.0" }
 
 ## Usage
 
-Create a function named `start` in your solution file and add `EsbFireplace.v1_run` to it.
+Create your solution functions and add `esb_fireplace::v1_run` to `main`.
 
 ```rust
 use esb_fireplace::{FireplaceError, FireplaceResult};
